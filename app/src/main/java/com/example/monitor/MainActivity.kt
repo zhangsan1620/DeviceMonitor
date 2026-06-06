@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MonitorScreen() {
     var cpuInfo by remember { mutableStateOf(CpuMonitor.CpuInfo(0f, emptyList())) }
-    var memInfo by remember { mutableStateOf(MemMonitor.MemInfo(0, 0, 0, 0f, 0, 0, 0)) }
+    var memInfo by remember { mutableStateOf(MemMonitor.MemInfo(0, 0, 0, 0f, 0)) }
     var history by remember { mutableStateOf(listOf<Float>()) }
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -80,7 +80,7 @@ fun CpuSection(info: CpuMonitor.CpuInfo, history: List<Float>) {
             Spacer(Modifier.height(4.dp))
 
             LinearProgressIndicator(
-                progress = { info.totalPercent / 100f },
+                progress = info.totalPercent / 100f,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),
@@ -102,7 +102,7 @@ fun CpuSection(info: CpuMonitor.CpuInfo, history: List<Float>) {
                     Text("CPU$i", fontFamily = FontFamily.Monospace, fontSize = 12.sp,
                         modifier = Modifier.width(40.dp))
                     LinearProgressIndicator(
-                        progress = { pct / 100f },
+                        progress = pct / 100f,
                         modifier = Modifier.weight(1f).height(6.dp),
                         color = Color(0xFF42A5F5),
                         trackColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -158,7 +158,7 @@ fun MemorySection(info: MemMonitor.MemInfo) {
             Spacer(Modifier.height(4.dp))
 
             LinearProgressIndicator(
-                progress = { info.percent / 100f },
+                progress = info.percent / 100f,
                 modifier = Modifier.fillMaxWidth().height(8.dp),
                 color = if (info.percent < 50) Color(0xFF4CAF50)
                         else if (info.percent < 80) Color(0xFFFFA726)
@@ -182,10 +182,10 @@ fun MemorySection(info: MemMonitor.MemInfo) {
             }
 
             Spacer(Modifier.height(8.dp))
-            Text("This App:", style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("  Native: ${info.nativeHeapMb} MB  |  Dalvik: ${info.dalvikHeapMb} MB",
-                fontFamily = FontFamily.Monospace, fontSize = 12.sp)
+            Text("App Native Heap: ${info.nativeHeapMb} MB",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontFamily = FontFamily.Monospace)
         }
     }
 }

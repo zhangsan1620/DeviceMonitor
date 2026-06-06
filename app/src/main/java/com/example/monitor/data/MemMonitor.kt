@@ -11,9 +11,7 @@ object MemMonitor {
         val usedMb: Long,
         val availMb: Long,
         val percent: Float,
-        val nativeHeapMb: Long,
-        val dalvikHeapMb: Long,
-        val otherMb: Long
+        val nativeHeapMb: Long
     )
 
     fun read(context: Context): MemInfo {
@@ -25,13 +23,8 @@ object MemMonitor {
         val availMb = mi.availMem / (1024 * 1024)
         val usedMb = totalMb - availMb
         val percent = if (totalMb > 0) usedMb * 100f / totalMb else 0f
+        val nativeHeapMb = Debug.getNativeHeapAllocatedSize() / (1024 * 1024)
 
-        val dm = Debug.MemoryInfo()
-        Debug.getMemoryInfo(dm)
-        val nativeHeapMb = dm.nativeHeapAllocatedSize / (1024 * 1024)
-        val dalvikHeapMb = dm.dalvikHeapAllocatedSize / (1024 * 1024)
-        val otherMb = dm.getTotalAllocated() / (1024 * 1024) - nativeHeapMb - dalvikHeapMb
-
-        return MemInfo(totalMb, usedMb, availMb, percent, nativeHeapMb, dalvikHeapMb, otherMb)
+        return MemInfo(totalMb, usedMb, availMb, percent, nativeHeapMb)
     }
 }
