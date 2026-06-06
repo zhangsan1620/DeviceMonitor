@@ -3,6 +3,7 @@ package com.example.monitor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +25,7 @@ import kotlinx.coroutines.isActive
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             MaterialTheme {
                 MonitorScreen()
@@ -41,9 +43,11 @@ fun MonitorScreen() {
 
     LaunchedEffect(Unit) {
         while (isActive) {
-            cpuInfo = CpuMonitor.read()
-            memInfo = MemMonitor.read(context)
-            history = (history + cpuInfo.totalPercent).takeLast(60)
+            try {
+                cpuInfo = CpuMonitor.read()
+                memInfo = MemMonitor.read(context)
+                history = (history + cpuInfo.totalPercent).takeLast(60)
+            } catch (_: Exception) {}
             delay(1500)
         }
     }
