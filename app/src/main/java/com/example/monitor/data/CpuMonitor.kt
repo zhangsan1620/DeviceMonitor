@@ -2,6 +2,7 @@ package com.example.monitor.data
 
 import java.io.BufferedReader
 import java.io.FileReader
+import java.io.InputStreamReader
 
 object CpuMonitor {
 
@@ -15,12 +16,36 @@ object CpuMonitor {
     private var prevCores: Map<Int, Pair<Long, Long>> = emptyMap()
     private var first = true
 
-    fun read(): CpuInfo {
+    private fun readProcStatFallback(): String? {
+        return try {
+            val proc = ProcessBuilder("sh", "-c", "cat /proc/stat").start()
+            proc.inputStream.bufferedReader().readText()
+        } catch (_: Exception) {
+            try {
+                val proc = ProcessBuilder("cat", "/proc/stat").start()
+                proc.inputStream.bufferedReader().readText()
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun readLines(): List<String>? {
         try {
             val reader = BufferedReader(FileReader("/proc/stat"))
             val lines = reader.readLines()
             reader.close()
+            return lines
+        } catch (_: Exception) {
+            val text = readProcStatFallback() ?: return null
+            return text.split("\n").filter { it.isNotBlank() }
+        }
+    }
 
+    fun read(): CpuInfo {
+        val lines = readLines() ?: return CpuInfo(0f, emptyList())
+
+        try {
             var total: Long = 0
             var idle: Long = 0
             val cores = mutableMapOf<Int, Pair<Long, Long>>()
